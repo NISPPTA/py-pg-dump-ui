@@ -12,7 +12,7 @@ class MainWindow:
     def __init__(self, root):
         self.root = root
         self.root.title("PostgreSQL Vault - Backup & Restore UI")
-        self.root.geometry("750x680")
+        self.root.geometry("750x740")
         self.root.resizable(False, False)
 
         style = ttk.Style()
@@ -20,8 +20,6 @@ class MainWindow:
 
         # Instancia o Core (Runner), passando os métodos seguros para Thread
         self.runner = PostgresRunner(
-            pg_dump_path=settings.PG_DUMP,
-            pg_restore_path=settings.PG_RESTORE,
             on_log=self.safe_log_message,
             on_state_change=self.safe_toggle_ui,
         )
@@ -29,11 +27,29 @@ class MainWindow:
         self._create_widgets()
 
     def _create_widgets(self):
+        # --- SEÇÃO DE VERSÃO DO MOTOR ---
+        engine_frame = ttk.LabelFrame(
+            self.root, text=" Motor Cliente PostgreSQL ", padding=(10, 8)
+        )
+        engine_frame.pack(fill="x", padx=15, pady=(10, 5))
+
+        ttk.Label(engine_frame, text="Versão dos Binários:").grid(
+            row=0, column=0, sticky="w", padx=5
+        )
+        self.combo_version = ttk.Combobox(
+            engine_frame,
+            values=list(settings.PG_VERSIONS.keys()),
+            state="readonly",
+            width=45,
+        )
+        self.combo_version.set(settings.DEFAULT_PG_VERSION)
+        self.combo_version.grid(row=0, column=1, sticky="w", padx=5)
+
         # --- SEÇÃO DE BACKUP ---
         backup_frame = ttk.LabelFrame(
             self.root, text=" 1. Backup (Produção -> Arquivo Local) ", padding=(10, 10)
         )
-        backup_frame.pack(fill="x", padx=15, pady=10)
+        backup_frame.pack(fill="x", padx=15, pady=5)
 
         ttk.Label(backup_frame, text="URL Origem:").grid(
             row=0, column=0, sticky="w", pady=5
@@ -144,9 +160,14 @@ class MainWindow:
         status = tk.NORMAL if is_idle else tk.DISABLED
         self.btn_run_backup.configure(state=status)
         self.btn_run_restore.configure(state=status)
+        self.combo_version.configure(state="readonly" if is_idle else tk.DISABLED)
         self.progress_bar.stop() if is_idle else self.progress_bar.start(15)
 
     # --- AÇÕES DOS BOTÕES ---
+    def _get_selected_bin_dir(self):
+        selected_label = self.combo_version.get()
+        return settings.PG_VERSIONS[selected_label]
+
     def action_backup(self):
         url = self.entry_backup_url.get().strip()
         path = self.entry_backup_path.get().strip()
@@ -155,7 +176,7 @@ class MainWindow:
                 "Aviso", "Preencha a URL de origem e o destino do arquivo."
             )
             return
-        self.runner.run_backup(url, path)
+        self.runner.run_backup(url, path, self._get_selected_bin_dir())
 
     def action_restore(self):
         url = self.entry_restore_url.get().strip()
@@ -165,4 +186,4 @@ class MainWindow:
                 "Aviso", "Preencha a URL de destino e o arquivo fonte."
             )
             return
-        self.runner.run_restore(url, path)
+        self.runner.run_restore(url, path, self._get_selected_bin_dir())
