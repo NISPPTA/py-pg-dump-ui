@@ -1,4 +1,5 @@
-# A interface gráfica. Ela mapeia os callbacks do Core de volta para a thread principal do Tkinter usando self.root.after, garantindo que a tela não congele.
+# A interface gráfica. Ela mapeia os callbacks do Core de volta para a 
+# thread principal do Tkinter usando self.root.after, garantindo que a tela não congele.
 
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
