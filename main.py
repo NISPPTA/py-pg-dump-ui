@@ -1,4 +1,5 @@
-# O arquivo que você de fato executa. Limpo e focado apenas em disparar o loop do sistema.
+# O arquivo que você de fato executa. Limpo e focado 
+# apenas em disparar o loop do sistema.
 
 import tkinter as tk
 
