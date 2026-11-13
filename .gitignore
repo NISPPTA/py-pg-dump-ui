@@ -218,6 +218,3 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-
-# Ignorar binarios do banco de dados na nuvem
-pgsql/
