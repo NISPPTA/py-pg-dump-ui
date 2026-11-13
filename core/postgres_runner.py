@@ -3,16 +3,15 @@
 import os
 import subprocess
 import threading
+from pathlib import Path
 
 
 class PostgresRunner:
-    def __init__(self, pg_dump_path, pg_restore_path, on_log, on_state_change):
+    def __init__(self, on_log, on_state_change):
         """
         :param on_log: Função callback para enviar mensagens de log.
         :param on_state_change: Função callback para alterar estado UI (bloquear/liberar botões).
         """
-        self.pg_dump = pg_dump_path
-        self.pg_restore = pg_restore_path
         self.on_log = on_log
         self.on_state_change = on_state_change
 
@@ -27,6 +26,7 @@ class PostgresRunner:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
+                errors="replace",
                 creationflags=0x08000000 if os.name == "nt" else 0,
             )
 
@@ -42,24 +42,28 @@ class PostgresRunner:
 
         except FileNotFoundError:
             self.on_log(
-                "\n❌ ERRO: Executável não encontrado. Verifique o caminho no config/settings.py."
+                "\n❌ ERRO: Executável não encontrado na pasta da versão selecionada."
             )
-        except Exception as e:
+        except (OSError, subprocess.SubprocessError, ValueError) as e:
             self.on_log(f"\n❌ ERRO FATAL: {e!s}")
         finally:
             self.on_state_change(True)
             self.on_log("=" * 50 + "\n")
 
-    def run_backup(self, url, filepath):
-        cmd = [self.pg_dump, url, "-v", "-F", "c", "-f", filepath]
+    def run_backup(self, url: str, filepath: str, bin_dir: Path):
+        pg_dump = str(bin_dir / "pg_dump.exe")
+        cmd = [pg_dump, url, "-v", "-F", "c", "-f", filepath]
         threading.Thread(
             target=self._execute_command,
             args=(cmd, "BACKUP CONCLUÍDO COM SUCESSO!"),
             daemon=True,
         ).start()
 
-    def run_restore(self, url, filepath):
-        cmd = [self.pg_restore, "-d", url, "-v", "-1", filepath]
+    def run_restore(self, url: str, filepath: str, bin_dir: Path):
+        pg_restore = str(bin_dir / "pg_restore.exe")
+        # --no-owner evita erros com a role neondb_owner no banco local
+        # Sem -1 para o PG 17 não abortar no aviso de transaction_timeout do PG 18
+        cmd = [pg_restore, "-d", url, "-v", "--no-owner", filepath]
         threading.Thread(
             target=self._execute_command,
             args=(cmd, "RESTAURAÇÃO CONCLUÍDA COM SUCESSO!"),
