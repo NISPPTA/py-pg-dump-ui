@@ -7,7 +7,7 @@ from gui.main_window import MainWindow
 
 def main():
     root = tk.Tk()
-    app = MainWindow(root)
+    MainWindow(root)
     root.mainloop()
 
 
