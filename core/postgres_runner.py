@@ -1,5 +1,5 @@
-# O motor DBA. Completamente agnóstico de Tkinter. 
-# Ele apenas processa os dumps e usa callbacks para avisar o 
+# O motor DBA. Completamente agnóstico de Tkinter.
+# Ele apenas processa os dumps e usa callbacks para avisar o
 # chamador (a GUI) sobre o que está acontecendo.
 
 import os
@@ -12,7 +12,7 @@ class PostgresRunner:
     def __init__(self, on_log, on_state_change):
         """
         :param on_log: Função callback para enviar mensagens de log.
-        :param on_state_change: Função callback para alterar 
+        :param on_state_change: Função callback para alterar
         estado UI (bloquear/liberar botões).
         """
         self.on_log = on_log
