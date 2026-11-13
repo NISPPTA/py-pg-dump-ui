@@ -1,5 +1,5 @@
-# A interface gráfica. Ela mapeia os callbacks do Core de volta para a 
-# thread principal do Tkinter usando self.root.after, garantindo que a tela não congele.
+# Interface gráfica: mapeia callbacks do Core para a thread principal do Tkinter
+# via self.root.after, garantindo que a tela não congele.
 
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
@@ -13,8 +13,9 @@ class MainWindow:
     def __init__(self, root):
         self.root = root
         self.root.title("PostgreSQL Vault - Backup & Restore UI")
-        self.root.geometry("750x740")
-        self.root.resizable(False, False)
+        self.root.geometry("960x760")
+        self.root.minsize(880, 720)
+        self.root.resizable(True, True)
 
         style = ttk.Style()
         style.theme_use("clam")
@@ -51,23 +52,26 @@ class MainWindow:
             self.root, text=" 1. Backup (Produção -> Arquivo Local) ", padding=(10, 10)
         )
         backup_frame.pack(fill="x", padx=15, pady=5)
+        backup_frame.columnconfigure(1, weight=1)
 
         ttk.Label(backup_frame, text="URL Origem:").grid(
             row=0, column=0, sticky="w", pady=5
         )
-        self.entry_backup_url = ttk.Entry(backup_frame, width=70)
-        self.entry_backup_url.grid(row=0, column=1, columnspan=2, pady=5, padx=5)
+        self.entry_backup_url = ttk.Entry(backup_frame)
+        self.entry_backup_url.grid(
+            row=0, column=1, columnspan=2, sticky="ew", pady=5, padx=(5, 0)
+        )
         self.entry_backup_url.insert(0, settings.DEFAULT_BACKUP_URL)
 
         ttk.Label(backup_frame, text="Salvar em:").grid(
             row=1, column=0, sticky="w", pady=5
         )
-        self.entry_backup_path = ttk.Entry(backup_frame, width=55)
-        self.entry_backup_path.grid(row=1, column=1, pady=5, padx=5)
+        self.entry_backup_path = ttk.Entry(backup_frame)
+        self.entry_backup_path.grid(row=1, column=1, sticky="ew", pady=5, padx=5)
 
         ttk.Button(
             backup_frame, text="Procurar...", command=self.browse_backup_save
-        ).grid(row=1, column=2, pady=5)
+        ).grid(row=1, column=2, sticky="e", pady=5)
 
         self.btn_run_backup = ttk.Button(
             backup_frame, text="▶ INICIAR BACKUP", command=self.action_backup
@@ -81,22 +85,25 @@ class MainWindow:
             padding=(10, 10),
         )
         restore_frame.pack(fill="x", padx=15, pady=5)
+        restore_frame.columnconfigure(1, weight=1)
 
         ttk.Label(restore_frame, text="Arquivo:").grid(
             row=0, column=0, sticky="w", pady=5
         )
-        self.entry_restore_path = ttk.Entry(restore_frame, width=55)
-        self.entry_restore_path.grid(row=0, column=1, pady=5, padx=5)
+        self.entry_restore_path = ttk.Entry(restore_frame)
+        self.entry_restore_path.grid(row=0, column=1, sticky="ew", pady=5, padx=5)
 
         ttk.Button(
             restore_frame, text="Procurar...", command=self.browse_restore_open
-        ).grid(row=0, column=2, pady=5)
+        ).grid(row=0, column=2, sticky="e", pady=5)
 
         ttk.Label(restore_frame, text="URL Destino:").grid(
             row=1, column=0, sticky="w", pady=5
         )
-        self.entry_restore_url = ttk.Entry(restore_frame, width=70)
-        self.entry_restore_url.grid(row=1, column=1, columnspan=2, pady=5, padx=5)
+        self.entry_restore_url = ttk.Entry(restore_frame)
+        self.entry_restore_url.grid(
+            row=1, column=1, columnspan=2, sticky="ew", pady=5, padx=(5, 0)
+        )
         self.entry_restore_url.insert(0, settings.DEFAULT_RESTORE_URL)
 
         self.btn_run_restore = ttk.Button(
